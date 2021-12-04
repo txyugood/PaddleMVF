@@ -6,7 +6,7 @@ import random
 import paddle
 import numpy as np
 
-from datasets import SampleFrames, RawFrameDecode, Resize, RandomCrop, CenterCrop, Flip, Normalize, FormatShape, Collect
+from datasets import SampleFrames, RawFrameDecode, Resize, RandomResizedCrop, CenterCrop, Flip, Normalize, FormatShape, Collect
 from datasets import RawframeDataset
 from timer import TimeAverager, calculate_eta
 from utils import load_pretrained_model
@@ -101,8 +101,9 @@ if __name__ == '__main__':
     tranforms = [
         SampleFrames(clip_len=16, frame_interval=4, num_clips=1),
         RawFrameDecode(),
-        Resize(scale=(256, 256)),
-        RandomCrop(size=224),
+        Resize(scale=(-1, 256)),
+        RandomResizedCrop(),
+        Resize(scale=(224, 224), keep_ratio=False),
         Flip(flip_ratio=0.5),
         Normalize(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False),
         FormatShape(input_format='NCHW'),
@@ -114,7 +115,7 @@ if __name__ == '__main__':
     val_tranforms = [
         SampleFrames(clip_len=16, frame_interval=4, num_clips=1, test_mode=True),
         RawFrameDecode(),
-        Resize(scale=(256, 256)),
+        Resize(scale=(np.Inf, 256), keep_ratio=True),
         CenterCrop(crop_size=224),
         Normalize(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False),
         FormatShape(input_format='NCHW'),

@@ -50,7 +50,7 @@ if __name__ == '__main__':
     loader = paddle.io.DataLoader(
         dataset,
         num_workers=0,
-        batch_size=5,
+        batch_size=1,
         shuffle=False,
         drop_last=False,
         return_list=True,
@@ -64,9 +64,11 @@ if __name__ == '__main__':
                       dropout_ratio=0.5,
                       in_channels=2048,
                       init_std=0.01,
-                      num_classes=101)
+                      num_classes=101,
+                      fcn_testing=True)
     model = Recognizer2D(backbone=backbone, cls_head=head,
-                         module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'))
+                         module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'),
+                         test_cfg=dict(average_clips='prob'))
     if args.pretrained is not None:
         load_pretrained_model(model, args.pretrained)
 

@@ -207,8 +207,8 @@ if __name__ == '__main__':
             optimizer.step()
             model.clear_gradients()
             lr.step()
-            total_loss += loss.numpy()
-            total_acc += outputs['top1_acc'].numpy()
+            total_loss += loss.numpy()[0]
+            total_acc += outputs['top1_acc'].numpy()[0]
 
             batch_cost_averager.record(
                 time.time() - batch_start, num_samples=batch_size)

@@ -94,14 +94,20 @@ class TSNClsHead(BaseHead):
         else:
             # [3*10 2048 4 8 8]
             if self.new_cls is None:
-                self.new_cls = nn.Conv3d(
+                self.new_cls = nn.Conv3D(
                     self.in_channels,
                     self.num_classes,
-                    1, 1, 0).cuda()
-                self.new_cls.load_state_dict(
-                    {'weight': self.new_fc.weight.unsqueeze(-1).unsqueeze(
-                        -1).unsqueeze(-1),
-                     'bias': self.new_fc.bias})
+                    1, 1, 0)
+                weight = self.new_fc.weight.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
+                weight = paddle.transpose(weight, [1, 0, 2, 3, 4])
+                initializer = paddle.nn.initializer.Assign(weight)
+                initializer(self.new_cls.weight)
+                initializer = paddle.nn.initializer.Assign(self.new_fc.bias)
+                initializer(self.new_cls.bias)
+                # self.new_cls.load_state_dict(
+                #     {'weight': self.new_fc.weight.unsqueeze(-1).unsqueeze(
+                #         -1).unsqueeze(-1),
+                #      'bias': self.new_fc.bias})
             if self.extract_feat:
                 feature = x.mean([2, 3, 4])  # [3*10 2048]
                 return feature

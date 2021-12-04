@@ -66,7 +66,7 @@ if __name__ == '__main__':
                       init_std=0.01,
                       num_classes=101,
                       fcn_testing=True)
-    model = Recognizer2D(backbone=backbone, cls_head=head,
+    model = Recognizer2D(backbone=backbone, cls_head=head,fcn_testing=True,
                          module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'),
                          test_cfg=dict(average_clips='prob'))
     if args.pretrained is not None:

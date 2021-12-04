@@ -80,8 +80,8 @@ class Recognizer2D(BaseRecognizer):
                 if self.fcn_testing:
                     # view to 3D, [120, 2048, 8, 8] -> [30, 4, 2048, 8, 8]
                     x = x.reshape(
-                        (-1, self.module_cfg['n_segment'] // temporal_pool) + x.shape[1:])
-                    x = x.transpose(1, 2)  # [30, 2048, 4, 8, 8]
+                        [-1, self.module_cfg['n_segment'] // temporal_pool] + x.shape[1:])
+                    x = x.transpose([0, 2, 1, 3, 4])  # [30, 2048, 4, 8, 8]
                     cls_score = self.cls_head(
                         x, self.module_cfg['n_segment'] // temporal_pool)  # [30 400]
                 else:

@@ -80,6 +80,14 @@ def parse_args():
         default=1234
     )
 
+    parser.add_argument(
+        '--split',
+        dest='split',
+        help='split annotation of ucf101',
+        type=int,
+        default=1
+    )
+
     return parser.parse_args()
 
 
@@ -100,7 +108,7 @@ if __name__ == '__main__':
         FormatShape(input_format='NCHW'),
         Collect(keys=['imgs', 'label'], meta_keys=[])
     ]
-    dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, 'ucf101_train_split_1_rawframes.txt'),
+    dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, f'ucf101_train_split_{args.split}_rawframes.txt'),
                               pipeline=tranforms, data_prefix=os.path.join(args.dataset_root, "rawframes"))
 
     val_tranforms = [
@@ -240,7 +248,7 @@ if __name__ == '__main__':
 
         if key_score['top1_acc'] > best_accuracy:
             best_accuracy = key_score['top1_acc']
-            current_save_dir = os.path.join("output", 'best_model')
+            current_save_dir = os.path.join("output", f'best_model_split_{args.split}')
             if not os.path.exists(current_save_dir):
                 os.makedirs(current_save_dir)
             paddle.save(model.state_dict(),

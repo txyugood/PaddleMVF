@@ -1,13 +1,14 @@
 import os
 import argparse
 
+import numpy as np
 import paddle
 
-from datasets import SampleFrames, RawFrameDecode, Resize, RandomCrop, CenterCrop, Flip, Normalize, FormatShape, Collect
+from datasets import SampleFrames, RawFrameDecode, Resize, ThreeCrop, Normalize, FormatShape, Collect
 from datasets import RawframeDataset
-from models.c3d import C3D
-from models.i3d_head import I3DHead
-from models.recognizer3d import Recognizer3D
+from models.resnet import ResNet
+from models.heads.tsn_clshead import TSNClsHead
+from models.recognizers.recognizer2d import Recognizer2D
 from utils import load_pretrained_model
 from progress_bar import ProgressBar
 
@@ -27,7 +28,7 @@ def parse_args():
         dest='pretrained',
         help='The pretrained of model',
         type=str,
-        default='output/best_model/model.pdparams')
+        default=None)
 
     return parser.parse_args()
 
@@ -35,12 +36,12 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     tranforms = [
-        SampleFrames(clip_len=16, frame_interval=1, num_clips=10, test_mode=True),
+        SampleFrames(clip_len=16, frame_interval=4, num_clips=10, test_mode=True),
         RawFrameDecode(),
-        Resize(scale=(128, 171)),
-        CenterCrop(crop_size=112),
-        Normalize(mean=[104, 117, 128], std=[1, 1, 1], to_bgr=False),
-        FormatShape(input_format='NCTHW'),
+        Resize(scale=(np.Inf, 256), keep_ratio=True),
+        ThreeCrop(crop_size=256),
+        Normalize(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False),
+        FormatShape(input_format='NCHW'),
         Collect(keys=['imgs', 'label'], meta_keys=[])
     ]
     dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, 'ucf101_val_split_1_rawframes.txt'),
@@ -55,10 +56,19 @@ if __name__ == '__main__':
         return_list=True,
     )
 
-    backbone = C3D(dropout_ratio=0.5, init_std=0.005)
-    head = I3DHead(num_classes=101, in_channels=4096, spatial_type=None, dropout_ratio=0.5, init_std=0.01)
-    model = Recognizer3D(backbone=backbone, cls_head=head)
-    load_pretrained_model(model, args.pretrained)
+    backbone = ResNet(depth=50, out_indices=(3,), norm_eval=False, partial_norm=False)
+    head = TSNClsHead(spatial_size=-1, spatial_type='avg',
+                      with_avg_pool=False,
+                      temporal_feature_size=1,
+                      spatial_feature_size=1,
+                      dropout_ratio=0.5,
+                      in_channels=2048,
+                      init_std=0.01,
+                      num_classes=101)
+    model = Recognizer2D(backbone=backbone, cls_head=head,
+                         module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'))
+    if args.pretrained is not None:
+        load_pretrained_model(model, args.pretrained)
 
     model.eval()
     results = []

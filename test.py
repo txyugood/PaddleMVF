@@ -29,6 +29,13 @@ def parse_args():
         help='The pretrained of model',
         type=str,
         default=None)
+    
+    parser.add_argument(
+        '--split',
+        dest='split',
+        help='split',
+        type=int,
+        default=1)
 
     return parser.parse_args()
 
@@ -44,7 +51,7 @@ if __name__ == '__main__':
         FormatShape(input_format='NCHW'),
         Collect(keys=['imgs', 'label'], meta_keys=[])
     ]
-    dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, 'ucf101_val_split_1_rawframes.txt'),
+    dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, f'ucf101_val_split_{args.split}_rawframes.txt'),
                               pipeline=tranforms, data_prefix=os.path.join(args.dataset_root, "rawframes"))
 
     loader = paddle.io.DataLoader(

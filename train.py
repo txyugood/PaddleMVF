@@ -101,7 +101,7 @@ if __name__ == '__main__':
     tranforms = [
         SampleFrames(clip_len=16, frame_interval=4, num_clips=1),
         RawFrameDecode(),
-        Resize(scale=(-1, 256)),
+        # Resize(scale=(-1, 256)),
         RandomResizedCrop(),
         Resize(scale=(224, 224), keep_ratio=False),
         Flip(flip_ratio=0.5),
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         FormatShape(input_format='NCHW'),
         Collect(keys=['imgs', 'label'], meta_keys=[])
     ]
-    val_dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, 'ucf101_val_split_1_rawframes.txt'),
+    val_dataset = RawframeDataset(ann_file=os.path.join(args.dataset_root, f'ucf101_val_split_{args.split}_rawframes.txt'),
                                   pipeline=val_tranforms, data_prefix=os.path.join(args.dataset_root, "rawframes"),
                                   test_mode=True)
 
@@ -160,11 +160,11 @@ if __name__ == '__main__':
         last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
         last_epoch = args.last_epoch
-    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch,
+    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000,
                                                              last_epoch=last_epoch)
     lr = paddle.optimizer.lr.LinearWarmup(
         learning_rate=learning_rate,
-        warmup_steps=300,
+        warmup_steps=1000,
         start_lr=0,
         end_lr=1e-3,
         last_epoch=last_epoch)

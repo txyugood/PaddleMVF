@@ -5,3 +5,5 @@
 *.npy
 *.pdparams
 *.pth
+!train*.log
+!test*.log

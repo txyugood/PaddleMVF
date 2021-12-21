@@ -1,26 +1,26 @@
-# Learning Spatiotemporal Features with 3D Convolutional Networks（C3D 基于Paddle复现）
+# 基于Paddle复现《MVFNet: Multi-View Fusion Network for Efficient Video Recognition》
 ## 1.简介
-该论文提出了一种使用在大规模视频数据集上训练的3D卷积网络，可以简单快速的学习时空特征的方法。
+在这篇论文中，作者提出了从多视点对HxWxT的视频信号进行建模，引入了一个高效的时空模块，称为多视点融合模块MVF。MVF是一个即插即用的模块，可以将现有的
+2D CNN模型转换为一个功能强大的时空特征提取器，并且开销很小。
 
-该论文有以下三个方法的发现：
+![img.png](imgs/img.png)
 
-1）与2D卷积网络相比，3D卷积网络更适合时空特征学习。
-
-2)在所有层中，3x3x3的卷积核的同构架构是3D卷积网络性能最好的架构之一。
-
-3）该文中的C3D网络，使用一个简单的线性分
-类器就达到了SOTA性能。并且由于卷积网络推理速度快，计算也非常高效。
-最后，该网络概念上非常简单，易于训练和使用。
-<div align=center>
-<img src="https://user-images.githubusercontent.com/34324155/143043383-8c26f5d6-d45e-47ae-be18-c23456eb84b9.png" width="800"/>
-</div>
+在上图中，在一个标准的ResNet的block中集成了MVF模块。在MVF模块中，输入的特征图被分为两个部分，一部分用于用于原始的激活函数计算。另一部分，用于多视图时空建模
+，在MVF模块中，多视图建模分别通过时间、水平和垂直维度的卷积来执行。然后将这个三个卷积的输出的特征图按元素相加，最后两部分的特征图连接在一起来融合原始的激活函数输出和
+多视图模块的激活函数输出。
 
 ## 2.复现精度
 在UCF-101数据的测试效果如下表。
 
-| NetWork | epochs | opt | image_size | batch_size | dataset | top1 acc | top5 acc |
+| NetWork | epochs | opt | image_size | batch_size | dataset | split | mean class accuracy |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| C3D | 100 | SGD | 128x171 | 32 | UCF-101 | 83.27 |95.96 |
+| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 1 | 96.32 |
+| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 2 | 96.65 |
+| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 3 | 96.65 |
+
+最终在UCF101三种不同的标注下的平均mean class accuracy是96.xx，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了
+精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的
+代码与参数。使用论文中提到的超参数，是结果也与论文中的指标有所差距。
 
 ## 3.数据集
 UCF-101:
@@ -31,25 +31,34 @@ UCF-101:
 
 预训练模型：
 
-链接: https://pan.baidu.com/s/1s836WYAixWBMnCckXblHbA 
+链接: https://pan.baidu.com/s/10dZTZwKEJ83smSJZ7mtp-w 
 
-提取码: b6wm 
-
+提取码: rjc8
 
 
 
 ## 4.环境依赖
 PaddlePaddle == 2.2.0
 ## 5.快速开始
-训练：
+分别使用三种不同的训练集标注进行训练：
 ```shell
-cd paddle_c3d
-nohup python -u train.py --dataset_root ../UCF-101  --pretrained ../c3d.pdparams > train.log &
-tail -f train.log
+cd paddle-mvf
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 1 > train_1.log &
+tail -f train_1.log
+
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 2 > train_2.log &
+tail -f train_2.log
+
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 3 > train_3.log &
+tail -f train_3.log
 ```
 dataset_root: 训练集路径
 
 pretrained: 预训练模型路径
+
+batch_size: 训练数据的批次容量
+
+split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 
 测试：
 
@@ -62,38 +71,106 @@ pretrained: 预训练模型路径
 提取码: b6wm 
 
 ```shell
-python test.py --dataset_root ../UCF-101 --pretrained ../best_model.pdparams
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_1.pdparams --spilt 1
 ```
 
 dataset_root: 训练集路径
 
 pretrained: 预训练模型路径
 
-测试结果
+分别使用三种不同的数据集标注进行测试。
+测试结果1
 
 ```shell
-W1129 19:35:42.080695   591 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
-W1129 19:35:42.084153   591 device_context.cc:465] device: 0, cuDNN Version: 7.6.
-Loading pretrained model from output/best_model/model.pdparams
-There are 22/22 variables loaded into Recognizer3D.
-[                                                  ] 0/3783, elapsed: 0s, ETA:/home/aistudio/paddle_c3d/datasets/pipelines/transforms.py:377: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+W1220 21:12:03.372563 21323 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 11.0, Runtime API Version: 10.1
+W1220 21:12:03.376852 21323 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Adding MVF module...
+=> n_segment per stage: [16, 16, 16, 16]
+=> Processing stage with 6 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Processing stage with 3 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+Loading pretrained model from ../model.pdparams
+There are 330/330 variables loaded into Recognizer2D.
+[                                                  ] 0/3783, elapsed: 0s, ETA:/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:477: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
 Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
   clip_offsets = (base_offsets + avg_interval / 2.0).astype(np.int)
-/home/aistudio/paddle_c3d/datasets/pipelines/transforms.py:433: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:533: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
 Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
   results['frame_inds'] = frame_inds.astype(np.int)
-[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 2.1 task/s, elapsed: 1780s, ETA:     0s
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.6 task/s, elapsed: 5857s, ETA:     0s
 Evaluating top_k_accuracy ...
 
-top1_acc        0.8327
-top5_acc        0.9596
+top1_acc	0.9635
+top5_acc	0.9952
 
 Evaluating mean_class_accuracy ...
 
-mean_acc        0.8330
-top1_acc: 0.8327
-top5_acc: 0.9596
-mean_class_accuracy: 0.8330
+mean_acc	0.9632
+top1_acc: 0.9635
+top5_acc: 0.9952
+mean_class_accuracy: 0.9632
+```
+
+测试结果2
+```shell
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdparams --spilt 2
+```
+
+```shell
+W1220 21:12:03.372563 21323 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 11.0, Runtime API Version: 10.1
+W1220 21:12:03.376852 21323 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Adding MVF module...
+=> n_segment per stage: [16, 16, 16, 16]
+=> Processing stage with 6 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Processing stage with 3 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+Loading pretrained model from ../model.pdparams
+There are 330/330 variables loaded into Recognizer2D.
+[                                                  ] 0/3783, elapsed: 0s, ETA:/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:477: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  clip_offsets = (base_offsets + avg_interval / 2.0).astype(np.int)
+/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:533: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  results['frame_inds'] = frame_inds.astype(np.int)
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3734/3734, 0.6 task/s, elapsed: 5817s, ETA:     0s
+Evaluating top_k_accuracy ...
+
+top1_acc	0.9657
+top5_acc	0.9976
+
+Evaluating mean_class_accuracy ...
+
+mean_acc	0.9665
+top1_acc: 0.9657
+top5_acc: 0.9976
+mean_class_accuracy: 0.9665
+```
+
+测试结果3
+
+```shell
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdparams --spilt 3
+```
+
+```shell
+
+
 ```
 
 ### TIPC基础链条测试
@@ -111,20 +188,28 @@ pip3 install ./dist/auto_log-1.0.0-py3-none-any.whl
 
 
 ```shell
-bash test_tipc/prepare.sh test_tipc/configs/c3d/train_infer_python.txt 'lite_train_lite_infer'
+bash test_tipc/prepare.sh test_tipc/configs/mvf/train_infer_python.txt 'lite_train_lite_infer'
 
-bash test_tipc/test_train_inference_python.sh test_tipc/configs/c3d/train_infer_python.txt 'lite_trai
+bash test_tipc/test_train_inference_python.sh test_tipc/configs/mvf/train_infer_python.txt 'lite_trai
 n_lite_infer'
 ```
 
 测试结果如截图所示：
 
-![](https://github.com/txyugood/PaddleC3D/blob/main/test_tipc/data/tipc_result.png?raw=true)
+![](https://github.com/txyugood/PaddleMVF/blob/main/test_tipc/data/tipc_result.png?raw=true)
 
 
 ## 6.代码结构与详细说明
 ```shell
 ├── README.md
+├── logs # 训练以及评测日志
+├── alignment
+│  ├── README.md # 精度对齐说明文档
+│  ├── step1 # 模型结构对齐检测脚本
+│   ├── step2 # 评测指标对齐检测脚本
+│   ├── step3 # 损失函数对齐检测脚本
+│   ├── step4 # 反向对齐检测脚本
+│   └── torch # torch模型核心代码
 ├── datasets # 数据集包
 │   ├── __init__.py
 │   ├── base.py #数据集基类
@@ -136,16 +221,16 @@ n_lite_infer'
 ├── models
 │   ├── __init__.py
 │   ├── base.py # 模型基类
-│   ├── c3d.py # c3d模型实现
-│   ├── i3d_head.py # c3d模型头部实现
-│   └── recognizer3d.py # 识别模型框架
+│   ├── resnet.py # 标注resnet模型
+│   ├── heads # 模型头部实现
+│   └── recognizers # 识别模型框架
 ├── progress_bar.py #进度条工具
 ├── test.py # 评估程序
 ├── test_tipc # TIPC脚本
 │   ├── README.md
 │   ├── common_func.sh # 通用脚本程序
 │   ├── configs
-│   │   └── c3d
+│   │   └── mvf
 │   │       └── train_infer_python.txt # 单机单卡配置
 │   ├── data
 │   │   ├── example.npy # 推理用样例数据
@@ -154,15 +239,27 @@ n_lite_infer'
 │   ├── prepare.sh # 数据准备脚本
 │   └── test_train_inference_python.sh # 训练推理测试脚本
 ├── timer.py # 时间工具类
-├── train.log # 训练日志
 ├── train.py # 训练脚本
+├── predict.py # 预测脚本
 └── utils.py # 训练工具包
 ```
 
-## 7.模型信息
+## 7.模型预测
+
+使用predict.py 脚本可进行单个视频文件的预测，可直接使用rawframes格式的数据做测试。
+
+执行以下脚本,
+
+```shell
+python predict.py --video ../ucf101/rawframes/Billiards/v_Billiards_g17_c01 --pretrained ../best_model_split_1.pdparams
+
+
+```
+
+## 8.模型信息
 
 | 信息 | 描述 |
 | --- | --- |
-|模型名称| C3D |
+|模型名称| MVF |
 |框架版本| PaddlePaddle==2.2.0|
 |应用场景| 动作识别 |

@@ -71,7 +71,7 @@ class Recognizer2D(BaseRecognizer):
         #  imgs: [B tem*crop*clip C H W]
         #  imgs: [B*tem*crop*clip C H W]
         num_batch = imgs.shape[0]
-        imgs = imgs.reshape([-1, self.in_channels] + imgs.shape[3:])
+        imgs = imgs.reshape([-1, self.in_channels] + list(imgs.shape[3:]))
         num_frames = imgs.shape[0] // num_batch
         x = self.extract_feat(imgs)
         if self.with_cls_head:

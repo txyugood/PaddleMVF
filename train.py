@@ -160,14 +160,18 @@ if __name__ == '__main__':
         last_epoch = (args.last_epoch + 1) * iters_per_epoch
     else:
         last_epoch = args.last_epoch
-    learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000,
-                                                             last_epoch=last_epoch)
-    lr = paddle.optimizer.lr.LinearWarmup(
-        learning_rate=learning_rate,
-        warmup_steps=1000,
-        start_lr=0,
-        end_lr=1e-3,
-        last_epoch=last_epoch)
+    if max_epochs > 1:
+        learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000,
+                                                                 last_epoch=last_epoch)
+        lr = paddle.optimizer.lr.LinearWarmup(
+            learning_rate=learning_rate,
+            warmup_steps=1000,
+            start_lr=0,
+            end_lr=1e-3,
+            last_epoch=last_epoch)
+    else:
+        lr = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch,
+                                                                 last_epoch=last_epoch)
     grad_clip = paddle.nn.ClipGradByNorm(40)
     optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(),
                                      grad_clip=grad_clip)

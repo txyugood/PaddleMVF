@@ -3,9 +3,9 @@ import argparse
 
 import paddle
 
-from models.c3d import C3D
-from models.i3d_head import I3DHead
-from models.recognizer3d import Recognizer3D
+from models.resnet import ResNet
+from models.heads.tsn_clshead import TSNClsHead
+from models.recognizers.recognizer2d import Recognizer2D
 from utils import load_pretrained_model
 
 def parse_args():
@@ -22,21 +22,23 @@ def parse_args():
         help='The path of model for export',
         type=str,
         default=None)
-    parser.add_argument(
-        "--input_shape",
-        nargs='+',
-        help="Export the model with fixed input shape, such as 1 3 1024 1024.",
-        type=int,
-        default=None)
 
     return parser.parse_args()
 
 
 def main(args):
 
-    backbone = C3D(dropout_ratio=0.5, init_std=0.005)
-    head = I3DHead(num_classes=101, in_channels=4096, spatial_type=None, dropout_ratio=0.5, init_std=0.01)
-    net = Recognizer3D(backbone=backbone, cls_head=head)
+    backbone = ResNet(depth=50, out_indices=(3,), norm_eval=False, partial_norm=False)
+    head = TSNClsHead(spatial_size=-1, spatial_type='avg',
+                      with_avg_pool=False,
+                      temporal_feature_size=1,
+                      spatial_feature_size=1,
+                      dropout_ratio=0.5,
+                      in_channels=2048,
+                      init_std=0.01,
+                      num_classes=101)
+    net = Recognizer2D(backbone=backbone, cls_head=head,
+                         module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'))
 
     if args.model_path:
         para_state_dict = paddle.load(args.model_path)
@@ -44,14 +46,14 @@ def main(args):
         print('Loaded trained params of model successfully.')
 
 
-    shape = [None, 1, 3, 16, 112, 112]
+    shape = [-1, 16, 3, 224, 224]
 
     new_net = net
 
     new_net.eval()
     new_net = paddle.jit.to_static(
         new_net,
-        input_spec=[paddle.static.InputSpec(shape=shape, dtype='float32')])
+        input_spec=[paddle.static.InputSpec(shape=shape, dtype='float32'), None, False, False])
     save_path = os.path.join(args.save_dir, 'model')
     paddle.jit.save(new_net, save_path)
 

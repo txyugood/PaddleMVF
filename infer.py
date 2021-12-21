@@ -166,7 +166,7 @@ def main():
         import auto_log
         pid = os.getpid()
         autolog = auto_log.AutoLogger(
-            model_name="C3D",
+            model_name="MVF",
             model_precision=args.precision,
             batch_size=args.batch_size,
             data_shape="dynamic",

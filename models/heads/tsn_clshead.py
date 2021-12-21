@@ -80,14 +80,14 @@ class TSNClsHead(BaseHead):
             if self.dropout is not None:
                 x = self.dropout(x)
             # x = x.view(x.size(0), -1)  # [4*3*10 2048]
-            x = x.reshape([x.shape[0], -1])
+            x = x.reshape([x.shape[0], x.shape[1] * x.shape[2] * x.shape[3] * x.shape[4]])
             if self.extract_feat:
                 cls_score = x  # [4*3*10 2048]
             else:
                 cls_score = self.new_fc(x)  # [4*3*10 400]
 
             cls_score = cls_score.reshape(
-                [-1, num_seg] + cls_score.shape[1:])  # [3*10 4 400]
+                [-1, num_seg] + list(cls_score.shape[1:]))  # [3*10 4 400]
             cls_score = self.segmental_consensus(cls_score)  # [3*10 1 400]
             cls_score = cls_score.squeeze(1)  # [30 400]
             return cls_score

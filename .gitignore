@@ -7,3 +7,4 @@
 *.pth
 !train*.log
 !test*.log
+__pycache__/

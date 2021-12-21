@@ -1,3 +1,7 @@
 /output/
 /test_tipc/data/mini_ucf/
 /test_tipc/data/__MACOSX/
+*.log
+*.npy
+*.pdparams
+*.pth

@@ -66,9 +66,9 @@ split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 
 最优模型下载地址：
 
-链接: https://pan.baidu.com/s/1s836WYAixWBMnCckXblHbA 
+链接: https://pan.baidu.com/s/1RNOA2G_YCKgDFVm1nf31Gw 
 
-提取码: b6wm 
+提取码: f42e
 
 ```shell
 python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_1.pdparams --spilt 1

@@ -9,6 +9,10 @@
 ，在MVF模块中，多视图建模分别通过时间、水平和垂直维度的卷积来执行。然后将这个三个卷积的输出的特征图按元素相加，最后两部分的特征图连接在一起来融合原始的激活函数输出和
 多视图模块的激活函数输出。
 
+AI Studio项目地址: [https://aistudio.baidu.com/aistudio/projectdetail/3173936?contributionType=1](https://aistudio.baidu.com/aistudio/projectdetail/3173936?contributionType=1)
+
+AI Studio项目可fork一键运行。
+
 ## 2.复现精度
 在UCF-101数据的测试效果如下表。
 

@@ -74,7 +74,7 @@ split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 提取码: f42e
 
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_1.pdparams --spilt 1
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_1.pdparams --split 1
 ```
 
 dataset_root: 训练集路径
@@ -101,7 +101,7 @@ mean_class_accuracy: 0.9632
 
 评估结果2
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdparams --spilt 2
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdparams --split 2
 ```
 
 ```shell
@@ -122,7 +122,7 @@ mean_class_accuracy: 0.9665
 评估结果3
 
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdparams --spilt 3
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdparams --split 3
 ```
 
 ```shell

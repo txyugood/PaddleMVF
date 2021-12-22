@@ -16,9 +16,9 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 1 | 96.32 |
 | MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 2 | 96.65 |
-| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 3 | 96.65 |
+| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 3 | 95.43 |
 
-最终在UCF101三种不同的标注下的平均mean class accuracy是96.xx，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了
+最终在UCF101三种不同的标注下的平均mean class accuracy是96.13，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了
 精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的
 代码与参数。使用论文中提到的超参数，是结果也与论文中的指标有所差距。
 
@@ -82,29 +82,6 @@ pretrained: 预训练模型路径
 测试结果1
 
 ```shell
-W1220 21:12:03.372563 21323 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 11.0, Runtime API Version: 10.1
-W1220 21:12:03.376852 21323 device_context.cc:465] device: 0, cuDNN Version: 7.6.
-Adding MVF module...
-=> n_segment per stage: [16, 16, 16, 16]
-=> Processing stage with 6 THW blocks residual
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Processing stage with 3 THW blocks residual
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-Loading pretrained model from ../model.pdparams
-There are 330/330 variables loaded into Recognizer2D.
-[                                                  ] 0/3783, elapsed: 0s, ETA:/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:477: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
-Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
-  clip_offsets = (base_offsets + avg_interval / 2.0).astype(np.int)
-/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:533: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
-Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
-  results['frame_inds'] = frame_inds.astype(np.int)
 [>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.6 task/s, elapsed: 5857s, ETA:     0s
 Evaluating top_k_accuracy ...
 
@@ -125,29 +102,6 @@ python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdpar
 ```
 
 ```shell
-W1220 21:12:03.372563 21323 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 11.0, Runtime API Version: 10.1
-W1220 21:12:03.376852 21323 device_context.cc:465] device: 0, cuDNN Version: 7.6.
-Adding MVF module...
-=> n_segment per stage: [16, 16, 16, 16]
-=> Processing stage with 6 THW blocks residual
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Processing stage with 3 THW blocks residual
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-=> Using Multi-view Fusion...
-Loading pretrained model from ../model.pdparams
-There are 330/330 variables loaded into Recognizer2D.
-[                                                  ] 0/3783, elapsed: 0s, ETA:/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:477: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
-Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
-  clip_offsets = (base_offsets + avg_interval / 2.0).astype(np.int)
-/home/aistudio/paddle-mvf/datasets/pipelines/transforms.py:533: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
-Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
-  results['frame_inds'] = frame_inds.astype(np.int)
 [>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3734/3734, 0.6 task/s, elapsed: 5817s, ETA:     0s
 Evaluating top_k_accuracy ...
 
@@ -169,8 +123,18 @@ python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdpar
 ```
 
 ```shell
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3696/3696, 0.6 task/s, elapsed: 6126s, ETA:     0s
+Evaluating top_k_accuracy ...
 
+top1_acc	0.9545
+top5_acc	0.9984
 
+Evaluating mean_class_accuracy ...
+
+mean_acc	0.9543
+top1_acc: 0.9545
+top5_acc: 0.9984
+mean_class_accuracy: 0.9543
 ```
 
 ### TIPC基础链条测试

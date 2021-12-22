@@ -40,6 +40,9 @@ UCF-101:
 ## 4.环境依赖
 PaddlePaddle == 2.2.0
 ## 5.快速开始
+
+### 模型训练
+
 分别使用三种不同的训练集标注进行训练：
 ```shell
 cd paddle-mvf
@@ -60,7 +63,7 @@ batch_size: 训练数据的批次容量
 
 split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 
-测试：
+### 模型评估
 
 使用最优模型进行评估.
 
@@ -78,8 +81,8 @@ dataset_root: 训练集路径
 
 pretrained: 预训练模型路径
 
-分别使用三种不同的数据集标注进行测试。
-测试结果1
+分别使用三种不同的数据集标注进行评估。
+评估结果1
 
 ```shell
 [>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.6 task/s, elapsed: 5857s, ETA:     0s
@@ -96,7 +99,7 @@ top5_acc: 0.9952
 mean_class_accuracy: 0.9632
 ```
 
-测试结果2
+评估结果2
 ```shell
 python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdparams --spilt 2
 ```
@@ -116,7 +119,7 @@ top5_acc: 0.9976
 mean_class_accuracy: 0.9665
 ```
 
-测试结果3
+评估结果3
 
 ```shell
 python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdparams --spilt 3
@@ -136,6 +139,21 @@ top1_acc: 0.9545
 top5_acc: 0.9984
 mean_class_accuracy: 0.9543
 ```
+
+### 模型推理
+
+使用predict.py 脚本可进行单个视频文件的推理预测，可直接使用rawframes格式的数据做测试。
+
+执行以下脚本,
+
+```shell
+python predict.py --video ../ucf101/rawframes/Billiards/v_Billiards_g17_c01 --pretrained ../best_model_split_1.pdparams
+
+Loading pretrained model from ../best_model_split_1.pdparams
+There are 330/330 variables loaded into Recognizer2D.
+Top1 class:11
+```
+
 
 ### TIPC基础链条测试
 
@@ -208,19 +226,7 @@ n_lite_infer'
 └── utils.py # 训练工具包
 ```
 
-## 7.模型预测
-
-使用predict.py 脚本可进行单个视频文件的预测，可直接使用rawframes格式的数据做测试。
-
-执行以下脚本,
-
-```shell
-python predict.py --video ../ucf101/rawframes/Billiards/v_Billiards_g17_c01 --pretrained ../best_model_split_1.pdparams
-
-
-```
-
-## 8.模型信息
+## 7.模型信息
 
 | 信息 | 描述 |
 | --- | --- |

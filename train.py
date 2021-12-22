@@ -173,8 +173,9 @@ if __name__ == '__main__':
         lr = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch,
                                                                  last_epoch=last_epoch)
     grad_clip = paddle.nn.ClipGradByNorm(40)
-    optimizer = paddle.optimizer.SGD(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(),
-                                     grad_clip=grad_clip)
+    optimizer = paddle.optimizer.Momentum(learning_rate=lr, weight_decay=1e-4, parameters=model.parameters(),
+                                          momentum=0.9,
+                                          grad_clip=grad_clip)
 
     if args.resume is not None:
         if os.path.exists(args.resume):
@@ -226,7 +227,7 @@ if __name__ == '__main__':
                 eta = calculate_eta(remain_iters, avg_train_batch_cost)
 
                 print(
-                    "[TRAIN] epoch={}, batch_id={}, loss={:.6f}, lr={:.6f},acc={:.3f},"
+                    "[TRAIN] epoch={}, batch_id={}, loss={:.6f}, lr={:.6f},acc={:.3f}, "
                     "avg_reader_cost: {:.3f} sec, avg_batch_cost: {:.3f} sec, avg_samples: {}, avg_ips: {:.3f} images/sec  ETA {}"
                         .format(epoch, batch_id + 1,
                                 avg_loss, optimizer.get_lr(), avg_acc,
@@ -251,8 +252,9 @@ if __name__ == '__main__':
         print(f"[EVAL] epoch={epoch}")
         key_score = val_dataset.evaluate(results, metrics=['top_k_accuracy', 'mean_class_accuracy'])
 
-        if key_score['top1_acc'] > best_accuracy:
-            best_accuracy = key_score['top1_acc']
+        if key_score['mean_class_accuracy'] > best_accuracy:
+            print("Save best model.")
+            best_accuracy = key_score['mean_class_accuracy']
             current_save_dir = os.path.join("output", f'best_model_split_{args.split}')
             if not os.path.exists(current_save_dir):
                 os.makedirs(current_save_dir)

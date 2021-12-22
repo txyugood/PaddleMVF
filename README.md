@@ -1,12 +1,10 @@
 # 基于Paddle复现《MVFNet: Multi-View Fusion Network for Efficient Video Recognition》
 ## 1.简介
-在这篇论文中，作者提出了从多视点对HxWxT的视频信号进行建模，引入了一个高效的时空模块，称为多视点融合模块MVF。MVF是一个即插即用的模块，可以将现有的
-2D CNN模型转换为一个功能强大的时空特征提取器，并且开销很小。
+在这篇论文中，作者提出了从多视点对HxWxT的视频信号进行建模，引入了一个高效的时空模块，称为多视点融合模块MVF。MVF是一个即插即用的模块，可以将现有的2D CNN模型转换为一个功能强大的时空特征提取器，并且开销很小。
 
 ![img.png](imgs/img.png)
 
-在上图中，在一个标准的ResNet的block中集成了MVF模块。在MVF模块中，输入的特征图被分为两个部分，一部分用于用于原始的激活函数计算。另一部分，用于多视图时空建模
-，在MVF模块中，多视图建模分别通过时间、水平和垂直维度的卷积来执行。然后将这个三个卷积的输出的特征图按元素相加，最后两部分的特征图连接在一起来融合原始的激活函数输出和
+在上图中，在一个标准的ResNet的block中集成了MVF模块。在MVF模块中，输入的特征图被分为两个部分，一部分用于用于原始的激活函数计算。另一部分，用于多视图时空建模，在MVF模块中，多视图建模分别通过时间、水平和垂直维度的卷积来执行。然后将这个三个卷积的输出的特征图按元素相加，最后两部分的特征图连接在一起来融合原始的激活函数输出和
 多视图模块的激活函数输出。
 
 AI Studio项目地址: [https://aistudio.baidu.com/aistudio/projectdetail/3173936?contributionType=1](https://aistudio.baidu.com/aistudio/projectdetail/3173936?contributionType=1)
@@ -22,9 +20,7 @@ AI Studio项目可fork一键运行。
 | MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 2 | 96.65 |
 | MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 3 | 95.43 |
 
-最终在UCF101三种不同的标注下的平均mean class accuracy是96.13，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了
-精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的
-代码与参数。使用论文中提到的超参数，是结果也与论文中的指标有所差距。
+最终在UCF101三种不同的标注下的平均mean class accuracy是96.13，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的代码与参数。使用论文中提到的超参数，结果也与论文中的指标有所差距。
 
 ## 3.数据集
 UCF-101:

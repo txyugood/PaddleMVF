@@ -79,6 +79,8 @@ if __name__ == '__main__':
         imgs = paddle.to_tensor(imgs)
         imgs = paddle.unsqueeze(imgs, axis=0)
         result = model(imgs, None, return_loss=False, return_numpy=False)
-        top1 = paddle.nn.functional.softmax(result)
-        top1 = paddle.argmax(top1, axis=-1)
-        print("Top1 class:{}".format(top1.detach().numpy()[0]))
+        score = paddle.nn.functional.softmax(result)
+        top1 = paddle.argmax(score, axis=-1)
+        top1 = top1.detach().numpy()[0]
+        score = score.detach().numpy()[0][top1]
+        print("Top1 class:{} score:{}".format(top1, score))

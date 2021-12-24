@@ -13,6 +13,7 @@ from utils import load_pretrained_model
 from models.resnet import ResNet
 from models.heads.tsn_clshead import TSNClsHead
 from models.recognizers.recognizer2d import Recognizer2D
+from precise_bn import do_preciseBN
 
 
 def parse_args():
@@ -31,22 +32,6 @@ def parse_args():
         help='The pretrained of model',
         type=str,
         default=None)
-
-    parser.add_argument(
-        '--resume',
-        dest='resume',
-        help='The path of resume model',
-        type=str,
-        default=None
-    )
-
-    parser.add_argument(
-        '--last_epoch',
-        dest='last_epoch',
-        help='The last epoch of resume model',
-        type=int,
-        default=-1
-    )
 
     parser.add_argument(
         '--batch_size',
@@ -101,7 +86,7 @@ if __name__ == '__main__':
     tranforms = [
         SampleFrames(clip_len=16, frame_interval=4, num_clips=1),
         RawFrameDecode(),
-        # Resize(scale=(-1, 256)),
+        Resize(scale=(-1, 256)),
         RandomResizedCrop(),
         Resize(scale=(224, 224), keep_ratio=False),
         Flip(flip_ratio=0.5),
@@ -137,6 +122,8 @@ if __name__ == '__main__':
     model = Recognizer2D(backbone=backbone, cls_head=head,
                          module_cfg=dict(type='MVF', n_segment=16, alpha=0.125, mvf_freq=(0, 0, 1, 1), mode='THW'))
 
+    head.new_fc.bias.optimize_attr['learning_rate'] = 1.0
+    head.new_fc.weight.optimize_attr['learning_rate'] = 1.0
 
     if args.pretrained is not None:
         load_pretrained_model(model, args.pretrained)
@@ -156,36 +143,12 @@ if __name__ == '__main__':
                                       batch_size=batch_size, shuffle=False, drop_last=False, return_list=True)
 
     max_epochs = args.max_epochs
-    if args.last_epoch > -1:
-        last_epoch = (args.last_epoch + 1) * iters_per_epoch
-    else:
-        last_epoch = args.last_epoch
-    if max_epochs > 1:
-        learning_rate = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch - 1000,
-                                                                 last_epoch=last_epoch)
-        lr = paddle.optimizer.lr.LinearWarmup(
-            learning_rate=learning_rate,
-            warmup_steps=1000,
-            start_lr=0,
-            end_lr=1e-3,
-            last_epoch=last_epoch)
-    else:
-        lr = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=max_epochs * iters_per_epoch,
-                                                                 last_epoch=last_epoch)
+
+    lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-2 / 8, milestones=[iters_per_epoch * 10, iters_per_epoch * 20])
     grad_clip = paddle.nn.ClipGradByNorm(40)
     optimizer = paddle.optimizer.Momentum(learning_rate=lr, weight_decay=1e-4, parameters=model.parameters(),
                                           momentum=0.9,
                                           grad_clip=grad_clip)
-
-    if args.resume is not None:
-        if os.path.exists(args.resume):
-            resume_model = os.path.normpath(args.resume)
-            ckpt_path = os.path.join(resume_model, 'model.pdparams')
-            para_state_dict = paddle.load(ckpt_path)
-            ckpt_path = os.path.join(resume_model, 'model.pdopt')
-            opti_state_dict = paddle.load(ckpt_path)
-            model.set_state_dict(para_state_dict)
-            optimizer.set_state_dict(opti_state_dict)
 
     epoch = 1
 
@@ -237,6 +200,10 @@ if __name__ == '__main__':
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()
+
+        do_preciseBN(
+            model, train_loader, False,
+            min(200, len(train_loader)))
 
         model.eval()
         results = []

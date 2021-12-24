@@ -147,11 +147,10 @@ mean_class_accuracy: 0.9543
 执行以下脚本,
 
 ```shell
-python predict.py --video ../ucf101/rawframes/Billiards/v_Billiards_g17_c01 --pretrained ../best_model_split_1.pdparams
-
-Loading pretrained model from ../best_model_split_1.pdparams
+python predict.py --video ../data/ucf101/rawframes/BaseballPitch/v_BaseballPitch_g07_c01 --pretrained ../best_model_e25_s1.pdparams 
+Loading pretrained model from ../best_model_e25_s1.pdparams
 There are 330/330 variables loaded into Recognizer2D.
-Top1 class:11
+Top1 class:6 prob:0.999985
 ```
 
 

@@ -200,10 +200,10 @@ if __name__ == '__main__':
                 reader_cost_averager.reset()
                 batch_cost_averager.reset()
             batch_start = time.time()
-
-        do_preciseBN(
-            model, train_loader, False,
-            min(200, len(train_loader)))
+        if epoch % 5 == 0:
+            do_preciseBN(
+                model, train_loader, False,
+               len(train_loader))
 
         model.eval()
         results = []

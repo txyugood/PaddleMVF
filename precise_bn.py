@@ -61,7 +61,7 @@ def do_preciseBN(model, data_loader, parallel, num_iters=200):
 
     ind = -1
     for ind, data in enumerate(itertools.islice(data_loader, num_iters)):
-        print("doing precise BN {} / {}...".format(ind + 1, num_iters))
+        # print("doing precise BN {} / {}...".format(ind + 1, num_iters))
 
         imgs = data['imgs']
         label = data['label']

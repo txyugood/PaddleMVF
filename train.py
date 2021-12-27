@@ -13,6 +13,7 @@ from utils import load_pretrained_model
 from models.resnet import ResNet
 from models.heads.tsn_clshead import TSNClsHead
 from models.recognizers.recognizer2d import Recognizer2D
+from custom_lr import CustomWarmupCosineDecay
 from precise_bn import do_preciseBN
 
 
@@ -144,10 +145,15 @@ if __name__ == '__main__':
 
     max_epochs = args.max_epochs
 
-    lr = paddle.optimizer.lr.MultiStepDecay(learning_rate=1e-2 / 8, milestones=[iters_per_epoch * 10, iters_per_epoch * 20])
+    lr = CustomWarmupCosineDecay(warmup_start_lr=0,
+                                 cosine_base_lr=0.00125,
+                                 warmup_epochs=5,
+                                 max_epoch=max_epochs,
+                                 num_iters=len(train_loader))
+
     grad_clip = paddle.nn.ClipGradByNorm(40)
-    optimizer = paddle.optimizer.Momentum(learning_rate=lr, weight_decay=1e-4, parameters=model.parameters(),
-                                          momentum=0.9,
+    optimizer = paddle.optimizer.Momentum(learning_rate=lr, weight_decay=5e-4, parameters=model.parameters(),
+                                          momentum=0.9, use_nesterov=True,
                                           grad_clip=grad_clip)
 
     epoch = 1
@@ -203,7 +209,7 @@ if __name__ == '__main__':
         if epoch % 5 == 0:
             do_preciseBN(
                 model, train_loader, False,
-               len(train_loader))
+                min(200, len(train_loader)))
 
         model.eval()
         results = []

@@ -36,6 +36,7 @@ class BaseHead(nn.Layer):
         num_classes=101,
         init_std=0.001,
         extract_feat=False,
+        ls_eps=0.1
     ):
         super(BaseHead, self).__init__()
         self.spatial_size = spatial_size
@@ -51,6 +52,7 @@ class BaseHead(nn.Layer):
             self.dropout = None
         self.Logits = None
         self.extract_feat = extract_feat
+        self.ls_eps = ls_eps
 
     @abstractmethod
     def forward(self, x):
@@ -71,5 +73,17 @@ class BaseHead(nn.Layer):
                 top_k_acc[0])
             losses['top5_acc'] = paddle.to_tensor(
                 top_k_acc[1])
-        losses['loss_cls'] = F.cross_entropy(cls_score, labels)
+        if self.ls_eps == 0:
+            losses['loss_cls'] = F.cross_entropy(cls_score, labels)
+        else:
+            losses['loss_cls'] = self.label_smooth_loss(cls_score, labels)
+
         return losses
+
+    def label_smooth_loss(self, scores, labels):
+        labels = F.one_hot(labels, self.num_classes)
+        labels = F.label_smooth(labels, epsilon=self.ls_eps)
+        labels = paddle.squeeze(labels, axis=1)
+        # loss = self.loss_func(scores, labels, soft_label=True, **kwargs)
+        loss = F.cross_entropy(scores, labels, soft_label=True)
+        return loss

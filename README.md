@@ -16,11 +16,11 @@ AI Studio项目可fork一键运行。
 ## 2.复现精度
 在UCF-101数据的测试效果如下表。
 
-| NetWork | epochs | opt | image_size | batch_size | dataset | split | mean class accuracy |
+| NetWork | opt | image_size | batch_size | dataset | split | top-1 | mean class accuracy |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 1 | 96.32 |
-| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 2 | 96.65 |
-| MVF | 100 | SGD | 224x224 | 16 | UCF-101 | 3 | 95.43 |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 1 | 96.7 | 96.6 |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 2 | 96.6 | 96.7 |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 3 | | 95.43 |
 
 最终在UCF101三种不同的标注下的平均mean class accuracy是96.13，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了
 精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的
@@ -89,18 +89,18 @@ pretrained: 预训练模型路径
 评估结果1
 
 ```shell
-[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.6 task/s, elapsed: 5857s, ETA:     0s
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.5 task/s, elapsed: 6949s, ETA:     0s
 Evaluating top_k_accuracy ...
 
-top1_acc	0.9635
-top5_acc	0.9952
+top1_acc	0.9670
+top5_acc	0.9963
 
 Evaluating mean_class_accuracy ...
 
-mean_acc	0.9632
-top1_acc: 0.9635
-top5_acc: 0.9952
-mean_class_accuracy: 0.9632
+mean_acc	0.9657
+top1_acc: 0.9670
+top5_acc: 0.9963
+mean_class_accuracy: 0.9657
 ```
 
 评估结果2

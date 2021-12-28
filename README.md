@@ -14,13 +14,18 @@ AI Studio项目可fork一键运行。
 ## 2.复现精度
 在UCF-101数据的测试效果如下表。
 
-| NetWork | opt | image_size | batch_size | dataset | split | top-1 | mean class accuracy |
+| Network | opt | image_size | batch_size | dataset | split | top-1 | mean class accuracy |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| MVF | SGD | 224x224 | 16 | UCF-101 | 1 | 96.7 | 96.6 |
-| MVF | SGD | 224x224 | 16 | UCF-101 | 2 | 96.6 | 96.7 |
-| MVF | SGD | 224x224 | 16 | UCF-101 | 3 | | 95.43 |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 1 | 96.83% | 96.75% |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 2 | 96.65% | 96.68% |
+| MVF | SGD | 224x224 | 16 | UCF-101 | 3 | 96.48% | 96.49% |
 
-最终在UCF101三种不同的标注下的平均mean class accuracy是96.13，与原文中的96.66有一点差距。经过多次试验均有一定差距，所以对本次复现的模型进行了精度对齐。对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)。验证结果证明模型复现正确，分析原因可能是因为训练策略或随机因素造成的，官方repo中并没有基于UCF101数据集训练的代码与参数。使用论文中提到的超参数，结果也与论文中的指标有所差距。
+| Network | top-1(over 3 splits) | mean class accuracy(over 3 splits) |
+| --- | --- | --- |
+| MVF | 96.65% | 96.64% |
+
+最终在UCF101三种标注的数据集上的mean class_accuracy为96.64%， top-1为96.65%，与论文中的指标96.6%持平。
+同时本次还对复现模型进行了对齐验证，对齐说明在[精度对齐说明文档](https://github.com/txyugood/PaddleMVF/blob/main/alignment/README.md)，验证结果证明模型复现正确。
 
 ## 3.数据集
 UCF-101:
@@ -46,13 +51,13 @@ PaddlePaddle == 2.2.0
 分别使用三种不同的训练集标注进行训练：
 ```shell
 cd paddle-mvf
-nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 1 > train_1.log &
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --max_epochs 50 --batch_size 16 --split 1 > train_1.log &
 tail -f train_1.log
 
-nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 2 > train_2.log &
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --max_epochs 50 --batch_size 16 --split 2 > train_2.log &
 tail -f train_2.log
 
-nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --batch_size 16 --split 3 > train_3.log &
+nohup python -u train.py --dataset_root ../ucf101  --pretrained ../paddle_mvf.pdparams --max_epochs 50 --batch_size 16 --split 3 > train_3.log &
 tail -f train_3.log
 ```
 dataset_root: 训练集路径
@@ -60,6 +65,8 @@ dataset_root: 训练集路径
 pretrained: 预训练模型路径
 
 batch_size: 训练数据的批次容量
+
+max_epochs: 最大训练轮数。
 
 split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 
@@ -74,7 +81,7 @@ split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 提取码: f42e
 
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_1.pdparams --split 1
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_e50_s1.pdparams --split 1
 ```
 
 dataset_root: 训练集路径
@@ -85,59 +92,59 @@ pretrained: 预训练模型路径
 评估结果1
 
 ```shell
-[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.5 task/s, elapsed: 6949s, ETA:     0s
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3783/3783, 0.6 task/s, elapsed: 6510s, ETA:     0s
 Evaluating top_k_accuracy ...
 
-top1_acc	0.9670
-top5_acc	0.9963
+top1_acc	0.9683
+top5_acc	0.9966
 
 Evaluating mean_class_accuracy ...
 
-mean_acc	0.9657
-top1_acc: 0.9670
-top5_acc: 0.9963
-mean_class_accuracy: 0.9657
+mean_acc	0.9675
+top1_acc: 0.9683
+top5_acc: 0.9966
+mean_class_accuracy: 0.9675
 ```
 
 评估结果2
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_2.pdparams --split 2
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_e50_s2.pdparams --split 2
 ```
 
 ```shell
-[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3734/3734, 0.6 task/s, elapsed: 5817s, ETA:     0s
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3734/3734, 0.6 task/s, elapsed: 5772s, ETA:     0s
 Evaluating top_k_accuracy ...
 
-top1_acc	0.9657
-top5_acc	0.9976
+top1_acc        0.9665
+top5_acc        0.9971
 
 Evaluating mean_class_accuracy ...
 
-mean_acc	0.9665
-top1_acc: 0.9657
-top5_acc: 0.9976
-mean_class_accuracy: 0.9665
+mean_acc        0.9668
+top1_acc: 0.9665
+top5_acc: 0.9971
+mean_class_accuracy: 0.9668
 ```
 
 评估结果3
 
 ```shell
-python test.py --dataset_root ../ucf101 --pretrained ../best_model_split_3.pdparams --split 3
+python test.py --dataset_root ../ucf101 --pretrained ../best_model_e50_s3.pdparams --split 3
 ```
 
 ```shell
-[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3696/3696, 0.6 task/s, elapsed: 6126s, ETA:     0s
+[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>] 3696/3696, 0.6 task/s, elapsed: 6127s, ETA:     0s
 Evaluating top_k_accuracy ...
 
-top1_acc	0.9545
-top5_acc	0.9984
+top1_acc	0.9648
+top5_acc	0.9978
 
 Evaluating mean_class_accuracy ...
 
-mean_acc	0.9543
-top1_acc: 0.9545
-top5_acc: 0.9984
-mean_class_accuracy: 0.9543
+mean_acc	0.9649
+top1_acc: 0.9648
+top5_acc: 0.9978
+mean_class_accuracy: 0.9649
 ```
 
 ### 模型推理
@@ -147,7 +154,21 @@ mean_class_accuracy: 0.9543
 执行以下脚本,
 
 ```shell
-python predict.py --video ../data/ucf101/rawframes/BaseballPitch/v_BaseballPitch_g07_c01 --pretrained ../best_model_e25_s1.pdparams 
+W1228 23:33:18.764572  6060 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W1228 23:33:18.768534  6060 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Adding MVF module...
+=> n_segment per stage: [16, 16, 16, 16]
+=> Processing stage with 6 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Processing stage with 3 THW blocks residual
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
+=> Using Multi-view Fusion...
 Loading pretrained model from ../best_model_e25_s1.pdparams
 There are 330/330 variables loaded into Recognizer2D.
 Top1 class:6 prob:0.999985
@@ -171,8 +192,7 @@ pip3 install ./dist/auto_log-1.0.0-py3-none-any.whl
 ```shell
 bash test_tipc/prepare.sh test_tipc/configs/mvf/train_infer_python.txt 'lite_train_lite_infer'
 
-bash test_tipc/test_train_inference_python.sh test_tipc/configs/mvf/train_infer_python.txt 'lite_trai
-n_lite_infer'
+bash test_tipc/test_train_inference_python.sh test_tipc/configs/mvf/train_infer_python.txt 'lite_train_lite_infer'
 ```
 
 测试结果如截图所示：

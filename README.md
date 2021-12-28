@@ -36,7 +36,7 @@ UCF-101:
 
 预训练模型：
 
-链接: https://pan.baidu.com/s/10dZTZwKEJ83smSJZ7mtp-w 
+链接: [https://pan.baidu.com/s/10dZTZwKEJ83smSJZ7mtp-w](https://pan.baidu.com/s/10dZTZwKEJ83smSJZ7mtp-w)
 
 提取码: rjc8
 
@@ -76,9 +76,9 @@ split: 指定的训练集标注文件，共有3个，可取值1，2，3.
 
 最优模型下载地址：
 
-链接: https://pan.baidu.com/s/1RNOA2G_YCKgDFVm1nf31Gw 
+链接: [https://pan.baidu.com/s/1pPXwdtdnbwm2orZ5YhaXCQ](https://pan.baidu.com/s/1pPXwdtdnbwm2orZ5YhaXCQ) 
 
-提取码: f42e
+提取码: sp4j
 
 ```shell
 python test.py --dataset_root ../ucf101 --pretrained ../best_model_e50_s1.pdparams --split 1

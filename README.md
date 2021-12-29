@@ -155,8 +155,8 @@ mean_class_accuracy: 0.9649
 
 ```shell
 python predict.py --video ../data/ucf101/rawframes/BaseballPitch/v_BaseballPitch_g07_c01 --pretrained ../best_model_e50_s1.pdparams 
-W1228 23:33:18.764572  6060 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
-W1228 23:33:18.768534  6060 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+W1229 14:49:15.781653  1818 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W1229 14:49:15.786347  1818 device_context.cc:465] device: 0, cuDNN Version: 7.6.
 Adding MVF module...
 => n_segment per stage: [16, 16, 16, 16]
 => Processing stage with 6 THW blocks residual
@@ -170,7 +170,7 @@ Adding MVF module...
 => Using Multi-view Fusion...
 => Using Multi-view Fusion...
 => Using Multi-view Fusion...
-Loading pretrained model from ../best_model_e25_s1.pdparams
+Loading pretrained model from ../best_model_e50_s1.pdparams
 There are 330/330 variables loaded into Recognizer2D.
 Top1 class:6 prob:0.973984
 ```

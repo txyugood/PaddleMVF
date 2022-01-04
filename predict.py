@@ -1,17 +1,16 @@
 import os
 import argparse
 import glob
+import json
 
 import numpy as np
 import paddle
 
 from datasets import SampleFrames, RawFrameDecode, Resize, ThreeCrop, Normalize, FormatShape, Collect, Compose
-from datasets import RawframeDataset
 from models.resnet import ResNet
 from models.heads.tsn_clshead import TSNClsHead
 from models.recognizers.recognizer2d import Recognizer2D
 from utils import load_pretrained_model
-from progress_bar import ProgressBar
 
 
 def parse_args():
@@ -71,6 +70,8 @@ if __name__ == '__main__':
                          test_cfg=dict(average_clips='prob'))
     if args.pretrained is not None:
         load_pretrained_model(model, args.pretrained)
+    with open('labels.json', 'r') as f:
+        label_name = json.load(f)
 
     model.eval()
 
@@ -82,4 +83,4 @@ if __name__ == '__main__':
         top1 = paddle.argmax(prob, axis=-1)
         top1 = top1.detach().numpy()[0]
         prob = prob.detach().numpy()[0][top1]
-        print("Top1 class:{} prob:{:.6f}".format(top1, prob))
+        print("Top1 class:{} prob:{:.6f}".format(label_name[str(top1)], prob))

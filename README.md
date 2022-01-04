@@ -149,14 +149,21 @@ mean_class_accuracy: 0.9649
 
 ### 模型推理
 
-使用predict.py 脚本可进行单个视频文件的推理预测，可直接使用rawframes格式的数据做测试。
+使用predict.py 脚本可进行单个视频文件的推理预测，可直接使用rawframes格式的数据做测试。输入视频如下:
+
+![pre.gif](imgs/pre.gif)
 
 执行以下脚本,
 
 ```shell
-python predict.py --video ../data/ucf101/rawframes/BaseballPitch/v_BaseballPitch_g07_c01 --pretrained ../best_model_e50_s1.pdparams 
-W1229 14:49:15.781653  1818 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
-W1229 14:49:15.786347  1818 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/home/aistudio/PaddleMVF/datasets/pipelines/transforms.py:477: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  clip_offsets = (base_offsets + avg_interval / 2.0).astype(np.int)
+/home/aistudio/PaddleMVF/datasets/pipelines/transforms.py:533: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  results['frame_inds'] = frame_inds.astype(np.int)
+W0104 23:03:08.078281  5679 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0104 23:03:08.083210  5679 device_context.cc:465] device: 0, cuDNN Version: 7.6.
 Adding MVF module...
 => n_segment per stage: [16, 16, 16, 16]
 => Processing stage with 6 THW blocks residual
@@ -172,7 +179,7 @@ Adding MVF module...
 => Using Multi-view Fusion...
 Loading pretrained model from ../best_model_e50_s1.pdparams
 There are 330/330 variables loaded into Recognizer2D.
-Top1 class:6 prob:0.973984
+Top1 class:BaseballPitch prob:0.973984
 ```
 
 
